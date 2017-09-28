@@ -12,10 +12,10 @@ var socket;
 function mockSocket() {
     
     socket = new net.Socket({});
-    this.sinon.stub(socket, 'write', function(s) { 
+    this.sinon.stub(socket, 'write').callsFake(function(s) { 
         return s;
     });
-    this.sinon.stub(socket, 'end', function(s) { 
+    this.sinon.stub(socket, 'end').callsFake(function(s) { 
         return s;
     
     });
