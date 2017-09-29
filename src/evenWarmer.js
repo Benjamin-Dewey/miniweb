@@ -36,11 +36,32 @@ const HOST = '127.0.0.1';
 const PORT = 8080;
 
 const server = net.createServer(sock => {
-  sock.on('data', () => {
+  sock.on('data', binaryData => {
+    let statusLine;
+    let headerFields;
+    let body;
+
+    const req = new Request(String(binaryData));
+
+    switch (req.path) {
+      case '/':
+        statusLine = 'HTTP/1.1 200 OK';
+        headerFields = 'Content-Type: text/html; charset=UTF-8';
+        body = '<link rel="stylesheet" type="text/css" href="http://localhost:8080/foo.css"><h2>this is a red header!</h2><em>Hello</em> <strong>World</strong>';
+        break;
+      case '/foo.css':
+        statusLine = 'HTTP/1.1 200 OK';
+        headerFields = 'Content-Type: text/css; charset=UTF-8';
+        body = 'h2 {color: red;}';
+        break;
+      default:
+        statusLine = 'HTTP/1.1 404 PAGE_NOT_FOUND';
+        headerFields = 'Content-Type: text/plain; charset=UTF-8';
+        body = 'uh oh... 404 page not found!';
+        break;
+    }
+
     const newLine = '\r\n';
-    const statusLine = 'HTTP/1.1 200 OK';
-    const headerFields = 'Content-Type: text/html; charset=UTF-8';
-    const body = '<em>Hello</em> <strong>World</strong>';
     const response = `${statusLine}${newLine}${headerFields}${newLine}${newLine}${body}`;
     sock.end(response);
   });
