@@ -81,7 +81,7 @@ class Response {
     const headerLines = Object.keys(this.headers).reduce((str, key) => {
       return `${str === '' ? '' : str + this.newLine}${key}: ${this.headers[key]}`;
     }, '');
-    const response = `${statusLine}${this.newLine}${headerLines}`;
+    const response = `${statusLine}${this.newLine}${headerLines}${this.newLine}${this.newLine}`;
 
     this.write(response);
   }
@@ -96,7 +96,7 @@ class Response {
     const headerLines = Object.keys(this.headers).reduce((str, key) => {
       return `${str === '' ? '' : str + this.newLine}${key}: ${this.headers[key]}`;
     }, '');
-    const response = `${statusLine}${this.newLine}${headerLines}`;
+    const response = `${statusLine}${this.newLine}${headerLines}${this.newLine}${this.newLine}`;
 
     this.end(response);
   }
@@ -107,6 +107,43 @@ class Response {
       return `${str === '' ? '' : str + this.newLine}${key}: ${this.headers[key]}`;
     }, '');
     return `${statusLine}${this.newLine}${headerLines}${headerLines === '' ? '' : this.newLine}${this.newLine}${this.body}`;
+  }
+
+  sendFile(fileName) {
+    let contentType;
+    let encodingObj = {};
+    switch (fileName.split('.')[1]) {
+        case 'html':
+          contentType = 'text/html';
+          encodingObj = {encoding: "utf8"};
+          break;
+        case 'css':
+          contentType = 'text/css';
+          encodingObj = {encoding: "utf8"};
+          break;
+        case 'txt':
+          contentType = 'text/plain';
+          encodingObj = {encoding: "utf8"};
+          break;
+        case 'png':
+          contentType = 'image/png';
+          break;
+        case 'gif':
+          contentType = 'image/gif';
+          break;
+        default:
+          contentType = 'image/jpeg';
+    }
+
+    require('fs').readFile(`${__dirname}/../public${fileName}`, encodingObj, (err, data) => {
+      if (err) { this.writeHead(500); }
+      else {
+        this.setHeader('Content-Type', contentType + (encodingObj.hasOwnProperty('encoding') ? '; charset=UTF-8' : ''));
+        this.writeHead(200);
+        this.write(data);
+        this.end();
+      }
+    });
   }
 }
 
@@ -138,6 +175,12 @@ const server = net.createServer(sock => {
         contentType = 'text/css; charset=UTF-8';
         body = 'h2 {color: red;}';
         break;
+      case '/img/bmo1.gif':
+        res.sendFile('/img/bmo1.gif');
+        return;
+      case '/html/test.html':
+        res.sendFile('/html/test.html');
+        return;
       default:
         statusCode = 404;
         contentType = 'text/plain; charset=UTF-8';
