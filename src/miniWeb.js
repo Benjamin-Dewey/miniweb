@@ -81,7 +81,7 @@ class Response {
     const headerLines = Object.keys(this.headers).reduce((str, key) => {
       return `${str === '' ? '' : str + this.newLine}${key}: ${this.headers[key]}`;
     }, '');
-    const response = `${statusLine}${this.newLine}${headerLines}${this.newLine}${this.newLine}`;
+    const response = `${statusLine}${this.newLine}${headerLines}${headerLines === '' ? '' : this.newLine}${this.newLine}`;
 
     this.write(response);
   }
@@ -139,11 +139,12 @@ class Response {
           break;
         default: // unkown file extension
           this.writeHead(500);
+          this.end('Internal Server Error');
           return;
     }
 
     require('fs').readFile(`${__dirname}/../public${fileName}`, encodingObj, (err, data) => {
-      if (err) { this.writeHead(500); }
+      if (err) { this.writeHead(500); this.end('Internal Server Error'); }
       else {
         this.setHeader('Content-Type', contentType + (encodingObj.hasOwnProperty('encoding') ? '; charset=UTF-8' : ''));
         this.writeHead(200);
@@ -181,7 +182,7 @@ class App {
     const handle = this.routes[path];
 
     if (handle) { handle(req, res); }
-    else { res.writeHead(404); }
+    else { res.writeHead(404); res.end('404 Page Not Found'); }
   }
 
   logResponse(req, res) {
