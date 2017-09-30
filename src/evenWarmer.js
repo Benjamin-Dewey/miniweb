@@ -113,6 +113,7 @@ class Response {
 module.exports = { Request, Response };
 
 //------------------------------------------------------------------------------
+// Server
 
 const net = require('net');
 const HOST = '127.0.0.1';
@@ -120,33 +121,33 @@ const PORT = 8080;
 
 const server = net.createServer(sock => {
   sock.on('data', binaryData => {
-    let statusLine;
-    let headerFields;
-    let body;
-
     const req = new Request(String(binaryData));
+    const res = new Response(sock);
 
+    let statusCode;
+    let contentType;
+    let body;
     switch (req.path) {
       case '/':
-        statusLine = 'HTTP/1.1 200 OK';
-        headerFields = 'Content-Type: text/html; charset=UTF-8';
+        statusCode = 200;
+        contentType = 'text/html; charset=UTF-8';
         body = '<link rel="stylesheet" type="text/css" href="http://localhost:8080/foo.css"><h2>this is a red header!</h2><em>Hello</em> <strong>World</strong>';
         break;
       case '/foo.css':
-        statusLine = 'HTTP/1.1 200 OK';
-        headerFields = 'Content-Type: text/css; charset=UTF-8';
+        statusCode = 200;
+        contentType = 'text/css; charset=UTF-8';
         body = 'h2 {color: red;}';
         break;
       default:
-        statusLine = 'HTTP/1.1 404 Not Found';
-        headerFields = 'Content-Type: text/plain; charset=UTF-8';
+        statusCode = 404;
+        contentType = 'text/plain; charset=UTF-8';
         body = 'uh oh... 404 page not found!';
         break;
     }
 
-    const newLine = '\r\n';
-    const response = `${statusLine}${newLine}${headerFields}${newLine}${newLine}${body}`;
-    sock.end(response);
+    res.setHeader('Content-Type', contentType);
+    res.send(statusCode, body);
+    res.end();
   });
 });
 
