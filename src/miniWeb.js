@@ -138,18 +138,16 @@ class Response {
           contentType = 'image/jpeg';
           break;
         default: // unkown file extension
-          this.writeHead(500);
-          this.end('Internal Server Error');
+          this.send(500, '500 Internal Server Error');
           return;
     }
 
     require('fs').readFile(`${__dirname}/../public${fileName}`, encodingObj, (err, data) => {
-      if (err) { this.writeHead(500); this.end('Internal Server Error'); }
+      if (err) { this.send(500, '500 Internal Server Error'); }
       else {
         this.setHeader('Content-Type', contentType + (encodingObj.hasOwnProperty('encoding') ? '; charset=UTF-8' : ''));
         this.writeHead(200);
-        this.write(data);
-        this.end();
+        this.end(data);
       }
     });
   }
@@ -174,7 +172,7 @@ class App {
     sock.on('close', () => this.logResponse(req, res));
 
     if (!req.headers.hasOwnProperty('Host')) {
-      res.writeHead(400);
+      res.send(400, '400 Bad Request');
       return;
     }
 
@@ -182,7 +180,7 @@ class App {
     const handle = this.routes[path];
 
     if (handle) { handle(req, res); }
-    else { res.writeHead(404); res.end('404 Page Not Found'); }
+    else { res.send(404, '404 Page Not Found'); }
   }
 
   logResponse(req, res) {
