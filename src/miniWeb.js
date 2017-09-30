@@ -178,7 +178,7 @@ class App {
       return;
     }
 
-    const path = req.path[req.path.length - 1] === '/' ? req.path.slice(0, req.path.length - 1) : req.path;
+    const path = req.path !== '/' && req.path[req.path.length - 1] === '/' ? req.path.slice(0, req.path.length - 1) : req.path;
     const handle = this.routes[path];
 
     if (handle) { handle(req, res); }
