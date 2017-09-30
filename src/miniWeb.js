@@ -156,7 +156,9 @@ class Response {
 class App {
   constructor() {
     this.routes = {};
-    this.server = require('net').createServer(sock => this.handleConnection(sock));
+    this.server = require('net').createServer(sock => {
+      this.handleConnection(sock);
+      sock.on('error', err => console.log(err));});
   }
 
   get(path, cb) { this.routes[path] = cb; }
