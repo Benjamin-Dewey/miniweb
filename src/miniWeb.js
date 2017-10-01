@@ -156,16 +156,17 @@ class Response {
 class App {
   constructor() {
     this.routes = {};
-    this.server = require('net').createServer(sock => {
-      this.handleConnection(sock);
-      sock.on('error', err => console.log(err));});
+    this.server = require('net').createServer(sock => this.handleConnection(sock));
   }
 
   get(path, cb) { this.routes[path] = cb; }
 
   listen(port, host) { this.server.listen(port, host); }
 
-  handleConnection(sock) { sock.on('data', binaryData => this.handleRequestData(sock, binaryData)); }
+  handleConnection(sock) {
+    sock.on('data', binaryData => this.handleRequestData(sock, binaryData));
+    sock.on('error', err => console.log(err));
+   }
 
   handleRequestData(sock, binaryData) {
     const req = new Request(String(binaryData));
