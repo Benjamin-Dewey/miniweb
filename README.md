@@ -10,3 +10,8 @@ node fansite
 
 ```
 You don't need to ```npm install``` the dependencies in ```package.json``` since they are only for testing purposes.
+
+## Routes
+- localhost:8080/
+- localhost:8080/about
+- localhost:8080/rando
